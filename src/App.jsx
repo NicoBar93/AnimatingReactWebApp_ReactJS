@@ -9,7 +9,15 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <RouterProvider 
+      router={router} 
+      future={{
+        v7_relativeSplatPath: true, // Per le rotte relative negli splat
+        v7_startTransition: true,  // Per il wrapping di React.startTransition
+      }} 
+    />
+  );
 }
 
 export default App;

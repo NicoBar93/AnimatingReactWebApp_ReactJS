@@ -1,13 +1,15 @@
-import { useContext, useRef, useState } from 'react';
+import { useContext, useRef, useState } from "react";
+import { motion, stagger, useAnimate } from "framer-motion";
 
-import { ChallengesContext } from '../store/challenges-context.jsx';
-import Modal from './Modal.jsx';
-import images from '../assets/images.js';
+import { ChallengesContext } from "../store/challenges-context.jsx";
+import Modal from "./Modal.jsx";
+import images from "../assets/images.js";
 
 export default function NewChallenge({ onDone }) {
   const title = useRef();
   const description = useRef();
   const deadline = useRef();
+  const [scope, animate] = useAnimate();
 
   const [selectedImage, setSelectedImage] = useState(null);
   const { addChallenge } = useContext(ChallengesContext);
@@ -31,6 +33,15 @@ export default function NewChallenge({ onDone }) {
       !challenge.deadline.trim() ||
       !challenge.image
     ) {
+      animate(
+        "input, textarea",
+        {
+          x: [-10, 10, 0, -10, 10, 0],
+        },
+        { border: "1px solid red" },
+        { ease: "easeOut" },
+        { type: "spring", duration: 0.3, delay: stagger(0.03) }
+      );
       return;
     }
 
@@ -39,37 +50,73 @@ export default function NewChallenge({ onDone }) {
   }
 
   return (
-    <Modal title="New Challenge" onClose={onDone}>
-      <form id="new-challenge" onSubmit={handleSubmit}>
+    <Modal
+      title="New Challenge"
+      onClose={onDone}
+    >
+      <form
+        id="new-challenge"
+        onSubmit={handleSubmit}
+        ref={scope}
+      >
         <p>
           <label htmlFor="title">Title</label>
-          <input ref={title} type="text" name="title" id="title" />
+          <input
+            ref={title}
+            type="text"
+            name="title"
+            id="title"
+          />
         </p>
 
         <p>
           <label htmlFor="description">Description</label>
-          <textarea ref={description} name="description" id="description" />
+          <textarea
+            ref={description}
+            name="description"
+            id="description"
+          />
         </p>
 
         <p>
           <label htmlFor="deadline">Deadline</label>
-          <input ref={deadline} type="date" name="deadline" id="deadline" />
+          <input
+            ref={deadline}
+            type="date"
+            name="deadline"
+            id="deadline"
+          />
         </p>
 
-        <ul id="new-challenge-images">
+        <motion.ul
+          id="new-challenge-images"
+          variants={{
+            visible: { transition: { staggerChildren: 0.3 } },
+          }}
+          initial="hidden"
+          animate="visible"
+        >
           {images.map((image) => (
-            <li
+            <motion.li
+              variants={{
+                hidden: { opacity: 0, scale: 0.5 },
+                visible: { opacity: 1, scale: [1.8, 1.2] },
+              }}
+              transition={{ type: "spring" }}
+              className={selectedImage === image ? "selected" : undefined}
               key={image.alt}
               onClick={() => handleSelectImage(image)}
-              className={selectedImage === image ? 'selected' : undefined}
             >
               <img {...image} />
-            </li>
+            </motion.li>
           ))}
-        </ul>
+        </motion.ul>
 
         <p className="new-challenge-actions">
-          <button type="button" onClick={onDone}>
+          <button
+            type="button"
+            onClick={onDone}
+          >
             Cancel
           </button>
           <button>Add Challenge</button>
